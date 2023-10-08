@@ -63,7 +63,7 @@ def simulate_distortion(audio, distortion_percentage):
     #             distorted_samples.append(sample)
     # return distorted_samples
 
-for i in range(num_patient_files-940): #USED TO BE 100, tqdm
+for i in range(num_patient_files-500): #USED TO BE 100, tqdm
     # Load the current patient data and recordings.
     current_patient_data = gmc.load_patient_data(patient_files[i])
     current_recordings, freq = gmc.load_recordings(data_path, current_patient_data, get_frequencies=True)
@@ -219,8 +219,21 @@ df = pd.DataFrame({'sequence_data': data_flat, 'label': np.argmax(labels, axis=1
 class_names = ['Present', 'Absent', 'Unknown']
 df['label'] = df['label'].map(lambda x: class_names[x])
 
-# Save the DataFrame to a CSV file
-csv_filename = 'generated_data45.csv'
-df.to_csv(csv_filename, index=False)
+# Specify the desired CSV path
+csv_path = r"C:\Users\praneelpatel\Downloads\data.csv"
 
-print(f"Data saved to {csv_filename}")
+# Open the CSV file for writing
+with open(csv_path, 'w') as file:
+    # Write the header row
+    file.write("sequence_data,label\n")
+    
+    # Iterate through the DataFrame rows and write each row to the CSV file
+    row_num = 0
+    for index, row in df.iterrows():
+        row_num += 1
+        print(row_num)
+        sequence_data = row['sequence_data']
+        label = row['label']
+        file.write(f"{sequence_data},{label}\n")
+
+print(f"Data saved to {csv_path}")
