@@ -1,9 +1,7 @@
 import random
-import matplotlib.pyplot as plt
 import numpy as np
 #import jax.numpy as jnp
 import pandas as pd
-import tensorflow as tf
 import tqdm
 from scipy import signal
 import sys
@@ -11,16 +9,8 @@ import sys
 import george_moody_challenge_2022_utility_script as gmc
 np.set_printoptions(threshold=sys.maxsize)
 
-def visualize_waveform(data,type):
-    plt.plot(data)
-    plt.xlabel('Sample')
-    plt.ylabel('Amplitude')
-    plt.title('Waveform Visualization:' + str(type))
-    plt.show()
 
-print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-
-data_path= r"C:\Users\prone\auscultation\data\training_data"
+data_path= r"C:\Users\praneelpatel\Documents\GitHub\PRAGA\data\training_data"
 
 patient_files = gmc.find_patient_files(data_path)
 num_patient_files = len(patient_files)
@@ -37,7 +27,6 @@ new_freq = 500
 #tf.reset_default_graph()
 #tf.keras.backend.clear_session()
 
-tf.random.set_seed(42)
 np.random.seed(42)
 random.seed(42)
 
@@ -74,7 +63,7 @@ def simulate_distortion(audio, distortion_percentage):
     #             distorted_samples.append(sample)
     # return distorted_samples
 
-for i in range(num_patient_files-500): #USED TO BE 100, tqdm
+for i in range(num_patient_files-940): #USED TO BE 100, tqdm
     # Load the current patient data and recordings.
     current_patient_data = gmc.load_patient_data(patient_files[i])
     current_recordings, freq = gmc.load_recordings(data_path, current_patient_data, get_frequencies=True)
@@ -168,21 +157,21 @@ print(str(len(labels)))
 filtered_data = []
 filtered_labels = []
 
-for i in range(len(labels)):
+for i in tqdm.tqdm(range(len(labels))):
     if np.argmax(labels[i]) != classes.index('Unknown'):
         filtered_data.append(data[i])
         filtered_labels.append(labels[i])
 
 # Convert to NumPy arrays
 filtered_labels = np.vstack(filtered_labels)
-filtered_data_numpy = np.asarray(filtered_data)
+filtered_data_numpy = [np.asarray(element) for element in filtered_data]
 labels = filtered_labels
 data_numpy = filtered_data_numpy
 del filtered_labels
 del filtered_data_numpy
-labels = np.vstack(labels)
-data_numpy = np.asarray(data)
-print(f"Number of signals = {data_numpy.shape[0]}")
+# labels = np.vstack(labels)
+# data_numpy = np.asarray(data)
+print(f"Number of signals = {len(data_numpy)}")
 
 sig_len = []
 for i in data:
@@ -198,9 +187,9 @@ print("Max signal length: " + str(np.asarray(sig_len).max()))
 #                                                                     padding='post',truncating='post', value=0.0)
 
 max_length = np.max(sig_len)
-data_padded = np.zeros((data_numpy.shape[0], max_length))
+data_padded = np.zeros((len(data_numpy), max_length))
 
-for i in tqdm.tqdm(range(data_numpy.shape[0])):
+for i in tqdm.tqdm(range(len(data_numpy))):
     sequence = data_numpy[i]
     seq_len = len(sequence)
     data_padded[i, :seq_len] = sequence
@@ -211,12 +200,17 @@ del data_numpy
 #data_flat = [seq.tolist() for seq in data_padded]
 data_flat = []
 
-for seq in data_padded:
-    if isinstance(seq, np.ndarray):
-        data_flat.append(seq.reshape(-1))
-    else:
-        print("invalid")
-        data_flat.append(seq)  # If not an ndarray, keep it unchanged
+# for seq in data_padded:
+#     if isinstance(seq, np.ndarray):
+#         data_flat.append(seq.reshape(-1))
+#     else:
+#         print("invalid")
+#         data_flat.append(seq)  # If not an ndarray, keep it unchanged
+
+        
+for seq in tqdm.tqdm(data_padded):
+    data_flat.append(seq.reshape(-1))
+
 
 # Create a DataFrame with two columns: 'sequence_data' and 'label'
 df = pd.DataFrame({'sequence_data': data_flat, 'label': np.argmax(labels, axis=1)})
