@@ -63,7 +63,7 @@ def simulate_distortion(audio, distortion_percentage):
     #             distorted_samples.append(sample)
     # return distorted_samples
 
-for i in range(num_patient_files-500): #USED TO BE 100, tqdm
+for i in range(num_patient_files-642): #USED TO BE 100, tqdm
     # Load the current patient data and recordings.
     current_patient_data = gmc.load_patient_data(patient_files[i])
     current_recordings, freq = gmc.load_recordings(data_path, current_patient_data, get_frequencies=True)
@@ -212,7 +212,6 @@ for seq in tqdm.tqdm(data_padded):
     data_flat.append(seq.reshape(-1))
 
 
-# Create a DataFrame with two columns: 'sequence_data' and 'label'
 df = pd.DataFrame({'sequence_data': data_flat, 'label': np.argmax(labels, axis=1)})
 
 # Map label indices to corresponding class names
@@ -226,14 +225,12 @@ csv_path = r"C:\Users\praneelpatel\Downloads\data.csv"
 with open(csv_path, 'w') as file:
     # Write the header row
     file.write("sequence_data,label\n")
-    
+
     # Iterate through the DataFrame rows and write each row to the CSV file
-    row_num = 0
     for index, row in df.iterrows():
-        row_num += 1
-        print(row_num)
-        sequence_data = row['sequence_data']
+        sequence_data = str(row['sequence_data'])  # Convert sequence_data to a string
         label = row['label']
-        file.write(f"{sequence_data},{label}\n")
+        formatted_row = f"[{sequence_data}],{label}\n"  # Format the row
+        file.write(formatted_row)
 
 print(f"Data saved to {csv_path}")
