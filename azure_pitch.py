@@ -16,7 +16,7 @@ patient_files = gmc.find_patient_files(data_path)
 num_patient_files = len(patient_files)
 print("Num patient files: " + str(num_patient_files))
 
-classes = ['Present', 'Unknown', 'Absent']
+classes = ['Low', 'Medium', 'High','nan']
 num_classes = len(classes)
 
 data = []
@@ -78,7 +78,8 @@ for i in range(num_patient_files-850): #USED TO BE 100, tqdm
 
         # Extract labels and use one-hot encoding.
         current_labels = np.zeros(num_classes, dtype=int)
-        label = gmc.get_label(current_patient_data)
+        label = gmc.get_pitch_label(current_patient_data)
+        print(label)
         if label in classes:
             j = classes.index(label)
             current_labels[j] = 1
@@ -158,8 +159,8 @@ filtered_data = []
 filtered_labels = []
 
 for i in tqdm.tqdm(range(len(labels))):
-    if np.argmax(labels[i]) != classes.index('Unknown'):
-        print(str(np.argmax(labels[i])) + "--" + str(classes.index('Unknown')))
+    if np.argmax(labels[i]) != classes.index('nan'):
+        print(str(np.argmax(labels[i])) + "--" + str(classes.index('nan')))
         filtered_data.append(data[i])
         filtered_labels.append(labels[i])
 
@@ -216,7 +217,7 @@ for seq in tqdm.tqdm(data_padded):
 df = pd.DataFrame({'sequence_data': data_flat, 'label': np.argmax(labels, axis=1)})
 
 # Map label indices to corresponding class names
-class_names = ['Present', 'Unknown','Absent']
+class_names = ['Low', 'Medium', 'High']
 df['label'] = df['label'].map(lambda x: class_names[x])
 
 # # # Specify the desired CSV path
