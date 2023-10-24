@@ -67,7 +67,7 @@ def data_generator(batch_size, data, labels):
 
 # Set constants and data paths
 print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-data_path= r"C:\Users\prone\auscultation\data\training_data"
+data_path= r"C:\Users\praneelpatel\Documents\GitHub\PRAGA\mod_data\training_data"
 patient_files = gmc.find_patient_files(data_path)
 num_patient_files = len(patient_files)
 print("Num patient files: " + str(num_patient_files))
